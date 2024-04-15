@@ -1,0 +1,21 @@
+#d-card-title {
+  display: flex;
+  justify-content: space-between;
+}
+.dashboard-card-body {
+  transition: all 0.5s ease;
+}
+.dashboard-card-body:hover {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  transform: scale(1.2);
+}
+#rating {
+  background-color: #55bdc0;
+  color: white;
+  font-size: small;
+  padding: 4px 6px;
+  border-radius: 10px;
+}
+.card-text {
+  font-weight: 900;
+}

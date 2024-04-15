@@ -1,0 +1,1823 @@
+// ** React Imports
+import { Fragment, useState, useEffect } from "react";
+
+import { Controller, useForm } from "react-hook-form";
+
+import useJwt from "@src/dashboard/jwt/useJwt";
+
+import country_code from "../../../../../country_code.json";
+
+// ** Reactstrap Imports
+import {
+  Label,
+  Row,
+  Col,
+  Input,
+  Form,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Spinner,
+  CardHeader,
+  FormFeedback,
+} from "reactstrap";
+
+// ** style
+import "./style/style.css";
+
+// ** Currency List
+const paidCurrencyList = [
+  "Pounds SterLing",
+  "US Dollar",
+  "Australian Dollar",
+  "Canadian Dollar",
+  "Danish Krone",
+  "Euro",
+  "Hong Kong Dollar",
+  "Japenese Yen",
+  "New Zealand Dollar",
+  "Norwegian Krone",
+  "Singapore Dollar",
+  "South African Rand",
+  "Swedish Krona",
+];
+
+const currencyList = paidCurrencyList.map((e, i) => {
+  return <option key={i}>{e}</option>;
+});
+
+const CompanyProfile = (props) => {
+  const { next, application_id} = props;
+  // ** states
+  const [defaultData, setDefaultData] = useState();
+  const [showParent, setShowparent] = useState(false);
+  const [billAdress, setBillAdresss] = useState(false);
+  const [loader, setLoader] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
+  const [callGet, setCallGet] = useState(false);
+
+  const [billingData, setBillingData] = useState({
+    streetaddress: "",
+    housenumber: "",
+    zipcode: "",
+    city: "",
+    state: "",
+    country: "",
+  });
+
+  // ** Forms
+  const {
+    control,
+    setError,
+    reset,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    clearErrors,
+  } = useForm({ defaultValues: defaultData });
+  //**  Date
+  const date = new Date().getFullYear();
+
+  // ** Country
+  const country = country_code.map((e, i) => {
+    return <option key={i}>{e.name}</option>;
+  });
+
+  const billingAddressSame = (data) => {
+    data.billing_street_address = data.registered_street_address;
+    data.billing_house_no = data.house_number;
+    data.billing_post_code = "";
+    data.billing_city = data.city;
+    data.billing_state = data.state;
+    data.billing_country = data.country;
+  };
+
+  const post = (data) => {
+    useJwt
+      .companyprofile({ ...data })
+      .then((res) => {
+        next("2");
+        setLoader(false);
+        setCallGet((previouse) => !previouse);
+        localStorage.setItem("application_id", res?.data?.application?.uid);
+      })
+      .catch((err) => {
+        alert(err.response?.status);
+        setLoader(false);
+      });
+  };
+
+  const update = (data) => {
+    data.application_id = localStorage.getItem("application_id");
+    useJwt
+      .putcompanyprofile(data.uid, data)
+      .then((res) => {
+        if (res?.status === 200) {
+          setLoader(false);
+          next("2");
+          setCallGet((previouse) => !previouse);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      })
+      .catch((err) => {
+        alert({ update: err?.response.state });
+        setLoader(false);
+      });
+  };
+
+  const onSubmit = (data) => {  
+    setLoader(true);
+    data.application_id = application_id;
+    if (!showParent) delete data["parent_company_detail"];
+    if (!billAdress) billingAddressSame(data);
+    setLoader(false);
+
+    if (!data.uid) {
+      if (application_id) post(data);
+    } else update(data);
+  };
+  const iterate = (obj) => {
+    Object.keys(obj).forEach((key) => {
+      if (!obj[key]) {
+        setError(key, { type:"custom", message: 'empty feild' });
+      }
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+        iterate(obj[key]);
+      }
+    });
+};
+
+  useEffect(() => {
+    useJwt.getcompanyprofile({ application_id: application_id }).then((res) => {
+      if (res.status === 200 && res.data.length > 0) {
+        localStorage.setItem("application_id", res.data[0].application.uid);
+        setDefaultData({ ...res.data[0] });
+        reset(res.data[0]);
+        iterate(res.data[0]);
+      }
+    });
+  }, [reset, application_id, callGet]);
+  return (
+    <Card className="application-container">
+      <CardHeader>
+        <div className="content-header">
+          <h5 className="mb-0">Company Profiles</h5>
+          <small className="text-muted">Enter Your Company Details.</small>
+        </div>
+      </CardHeader>
+
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <CardBody>
+          <div>
+            <div hidden>
+              <Controller
+                id="uid"
+                name="uid"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <Input
+                      control={control}
+                      name="uid"
+                      type="number"
+                      invalid={errors.uid && true}
+                      readOnly={isAccepted}
+                    />
+                  );
+                }}
+              />
+            </div>
+            <div
+              className="row"
+              style={{ display: "flex", alignItems: "baseline" }}
+            >
+              <div className="mt-3 mb-2">
+                <Label className="form-label" for="having_parent_company">
+                  Is Applying Company owned by a Parent Company?
+                </Label>
+                <br />
+                <Controller
+                  id="having_parent_company"
+                  name="having_parent_company"
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    if (value == true) {
+                      setShowparent(true);
+                    } else {
+                      setShowparent(false);
+                    }
+                    return (
+                      <div className="form-switch form-check-primary">
+                        <Input
+                          type="switch"
+                          name="icon-primary"
+                          onChange={onChange}
+                          checked={value}
+                        />
+                      </div>
+                    );
+                  }}
+                />
+              </div>
+              <div className="id col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="company_registration_no"
+                >
+                  <span>Company registration number?</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="company_registration_no"
+                  name="company_registration_no"
+                  control={control}
+                  rules={{
+                    required: true,
+                    maxLength: {
+                      value: 20,
+                      message: "value must be lesser than 20",
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        type="number"
+                        readOnly={isAccepted}
+                        invalid={errors.company_registration_no && true}
+                        {...field}
+                      />
+                    );
+                  }}
+                />
+                {errors.company_registration_no ? (
+                  <FormFeedback>
+                    {errors.company_registration_no.message}
+                  </FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="company_registration_no col-lg-6 mt-1  ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="company_registration_no"
+                  >
+                    <span>Company registration number</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="company_registration_no"
+                    name="parent_company_detail.company_registration_no"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 20,
+                        message: "value must be lesser than 20",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        name="parent_company_detail.company_registration_no"
+                        type="number"
+                        invalid={
+                          errors?.parent_company_detail
+                            ?.company_registration_no && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.company_registration_no ? (
+                    <FormFeedback>
+                      {
+                        errors?.parent_company_detail?.company_registration_no
+                          ?.message
+                      }
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="legal_name_company col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="legal_company_name"
+                >
+                  <span>Legal name of company</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="legal_company_name"
+                  name="legal_company_name"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 32,
+                      message: "value must be lesser than 32",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      control={control}
+                      name="legal_company_name"
+                      type="text"
+                      {...field}
+                      invalid={errors.legal_company_name && true}
+                      readOnly={isAccepted}
+                    />
+                  )}
+                />
+                {errors?.legal_company_name ? (
+                  <FormFeedback>
+                    {errors?.legal_company_name?.message}
+                  </FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="legal_name_company col-lg-6 mt-1">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="legal_company_name"
+                  >
+                    <span>Legal name of company</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="legal_company_name"
+                    name="parent_company_detail.legal_company_name"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 32,
+                        message: "value must be lesser than 32",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        name="parent_company_detail.legal_company_name"
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail?.legal_company_name &&
+                          true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.legal_company_name ? (
+                    <FormFeedback>
+                      {
+                        errors?.parent_company_detail?.legal_company_name
+                          ?.message
+                      }
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="Registered_DBA col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="About-registrationNumber"
+                >
+                  <span>
+                    Registered DBA/trade name (if other than legal name)
+                  </span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="trade_name"
+                  name="trade_name"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 32,
+                      message: "value must be lesser than 32",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      name="trade_name"
+                      type="text"
+                      invalid={errors.trade_name && true}
+                      readOnly={isAccepted}
+                    />
+                  )}
+                />
+                {errors?.trade_name ? (
+                  <FormFeedback>{errors?.trade_name?.message}</FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="Registered_DBA   col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="trade_name_p"
+                  >
+                    <span>
+                      Registered DBA/trade name (if other than legal name)
+                    </span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    name="parent_company_detail.trade_name"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 32,
+                        message: "value must be lesser than 32",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        name="parent_company_detail.trade_name"
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail?.trade_name && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.trade_name ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.trade_name?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="Type_of_business col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="business_type"
+                >
+                  <span>Type of business</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="business_type"
+                  name="business_type"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 32,
+                      message: "value must be lesser than 32",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      name="business_type"
+                      type="text"
+                      invalid={errors.business_type && true}
+                      readOnly={isAccepted}
+                    />
+                  )}
+                />
+                {errors?.business_type ? (
+                  <FormFeedback>{errors?.business_type?.message}</FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="Type_of_business col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="business_type"
+                  >
+                    <span>Type of business</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="business_type"
+                    name="parent_company_detail.business_type"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 32,
+                        message: "value must be lesser than 32",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        name="parent_company_detail.business_type"
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail?.business_type && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.business_type ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.business_type?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="Registered_street_address col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="registered_street_address"
+                >
+                  <span>Street address</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="registered_street_address"
+                  name="registered_street_address"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 50,
+                      message: "value must be lesser than 50",
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={errors.registered_street_address && true}
+                        readOnly={isAccepted}
+                      />
+                    );
+                  }}
+                />
+                {errors?.registered_street_address ? (
+                  <FormFeedback>
+                    {errors?.registered_street_address?.message}
+                  </FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="Registered_street_address col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="registered_street_address"
+                  >
+                    <span>Street address</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="registered_street_address"
+                    name="parent_company_detail.registered_street_address"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 50,
+                        message: "value must be lesser than 50",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        name="parent_company_detail.registered_street_address"
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail
+                            ?.registered_street_address && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.registered_street_address ? (
+                    <FormFeedback>
+                      {
+                        errors?.parent_company_detail?.registered_street_address
+                          ?.message
+                      }
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="House_number col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="house_number"
+                >
+                  <span>Office / House number</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="house_number"
+                  name="house_number"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 5,
+                      message: "value must be lesser than 5",
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        name="house_number"
+                        type="text"
+                        invalid={errors.house_number && true}
+                        readOnly={isAccepted}
+                      />
+                    );
+                  }}
+                />
+                {errors?.house_number ? (
+                  <FormFeedback>{errors?.house_number?.message}</FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="house_number"
+                  >
+                    <span>Office / House number</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="house_number"
+                    name="parent_company_detail.house_number"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 5,
+                        message: "value must be lesser than 5",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail?.house_number && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.house_number ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.house_number?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="Post_and_zip col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="zip_code"
+                >
+                  <span>Postcode / zip code</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="zip_code"
+                  name="zip_code"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 10,
+                      message: "value must be lesser than 10",
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={errors.zip_code && true}
+                        readOnly={isAccepted}
+                      />
+                    );
+                  }}
+                />
+                {errors?.zip_code ? (
+                  <FormFeedback>{errors?.zip_code?.message}</FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="zip_code"
+                  >
+                    <span>Postcode / zip code</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="zip_code"
+                    name="parent_company_detail.zip_code"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 10,
+                        message: "value must be lesser than 10",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={errors.parent_company_detail?.zip_code && true}
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.zip_code ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.zip_code?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="City col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="city"
+                >
+                  <span>City</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="city"
+                  name="city"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 15,
+                      message: "value must be lesser than 15",
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={errors.city && true}
+                        readOnly={isAccepted}
+                      />
+                    );
+                  }}
+                />
+                {errors?.city ? (
+                  <FormFeedback>{errors?.city?.message}</FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="city"
+                  >
+                    <span>City</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="city"
+                    name="parent_company_detail.city"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 15,
+                        message: "value must be lesser than 15",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={errors.parent_company_detail?.city && true}
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.city ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.city?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="col-lg-6">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="state"
+                >
+                  <span>State</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="state"
+                  name="state"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 15,
+                      message: "value must be lesser than 15",
+                    },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={errors.state && true}
+                        readOnly={isAccepted}
+                      />
+                    );
+                  }}
+                />
+                {errors?.state ? (
+                  <FormFeedback>{errors?.state?.message}</FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="State col-lg-6">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="state "
+                  >
+                    <span>State</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="state"
+                    name="parent_company_detail.state"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 15,
+                        message: "value must be lesser than 15",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={errors.parent_company_detail?.state && true}
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.state ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.state?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="Country col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="country"
+                >
+                  <span>Country</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <br />
+                <Controller
+                  id="country"
+                  name="country"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <Input
+                        control={control}
+                        name="country"
+                        type="select"
+                        invalid={errors.country && true}
+                        disabled={isAccepted}
+                      >
+                        <option value="none" selected disabled hidden>
+                          Select Country
+                        </option>
+                        {country}
+                      </Input>
+                    );
+                  }}
+                />
+              </div>
+              {showParent && (
+                <div className="Country col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="country"
+                  >
+                    <span>Country</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <br />
+                  <Controller
+                    id="country"
+                    name="parent_company_detail.country"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        control={control}
+                        name="parent_company_detail.country"
+                        type="select"
+                        invalid={errors.country && true}
+                        disabled={isAccepted}
+                      >
+                        <option value="none" selected disabled hidden>
+                          Select Country
+                        </option>
+                        {country}
+                      </Input>
+                    )}
+                  />
+                </div>
+              )}
+
+              <div className="Telephone col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="telephone_number"
+                >
+                  <span>Telephone number </span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="telephone_number"
+                  name="telephone_number"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 15,
+                      message: "value must be lesser than 15",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="text"
+                      invalid={errors.telephone_number && true}
+                      readOnly={isAccepted}
+                    />
+                  )}
+                />
+                {errors?.telephone_number ? (
+                  <FormFeedback>
+                    {errors?.telephone_number?.message}
+                  </FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="Telephone-p col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="telephone_number "
+                  >
+                    <span>Telephone number </span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="telephone_number"
+                    name="parent_company_detail.telephone_number"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 15,
+                        message: "value must be lesser than 15",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail?.telephone_number && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.telephone_number ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.telephone_number?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="Fax col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="fax_number"
+                >
+                  <span>Fax number </span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="fax_number"
+                  name="fax_number"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 10,
+                      message: "value must be lesser than 10",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="text"
+                      invalid={errors?.fax_number && true}
+                      readOnly={isAccepted}
+                    />
+                  )}
+                />
+                {errors?.fax_number ? (
+                  <FormFeedback>{errors?.fax_number?.message}</FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className="Fax-p col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="fax_number "
+                  >
+                    <span>Fax number </span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="fax_number "
+                    name="parent_company_detail.fax_number"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 10,
+                        message: "value must be lesser than 10",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail?.fax_number && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.fax_number ? (
+                    <FormFeedback>
+                      {errors?.parent_company_detail?.fax_number?.message}
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div
+                id="DropYearMonth"
+                className="Turnover_last_year col-lg-6 mt-1"
+              >
+                <div className="container-none">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="turnover_last_year mb-1"
+                  >
+                    <span>Turnover last year</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Applying Company
+                      </span>
+                    )}
+                  </Label>
+                  <div className="row g-2">
+                    <div className="col-6">
+                      <div className="">
+                        <Controller
+                          id="turnover_last_year"
+                          name="turnover_last_year"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              control={control}
+                              name="turnover_last_year"
+                              type="text"
+                              invalid={errors.turnover_last_year && true}
+                              readOnly={isAccepted}
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <Controller
+                        id="currency"
+                        name="currency"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            control={control}
+                            name="currency"
+                            type="select"
+                            invalid={errors.currency && true}
+                            disabled={isAccepted}
+                          >
+                            <option>---currency---</option>
+                            {currencyList}
+                          </Input>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {showParent && (
+                <div
+                  id="DropYearMonth"
+                  className="Turnover_last_year  col-lg-6 mt-1"
+                >
+                  <div className="container-none">
+                    <Label
+                      className="d-flex justify-content-between form-label"
+                      for="turnover_last_year  mb-1"
+                    >
+                      <span>Turnover last year</span>
+                      {showParent && (
+                        <span className="text-warning">
+                          Details of Parent Company
+                        </span>
+                      )}
+                    </Label>
+                    <div className="row g-2">
+                      <div className="col-6">
+                        <div className="">
+                          <Controller
+                            id="turnover_last_year"
+                            name="parent_company_detail.turnover_last_year"
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                control={control}
+                                name="parent_company_detail.turnover_last_year"
+                                type="text"
+                                invalid={errors.turnover_last_year && true}
+                                readOnly={isAccepted}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-6">
+                        <Controller
+                          id="currency "
+                          name="parent_company_detail.currency "
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              control={control}
+                              name="currency "
+                              type="select"
+                              invalid={errors.currency && true}
+                              disabled={isAccepted}
+                            >
+                              <option value="none" selected disabled hidden>
+                                ---currency---
+                              </option>
+                              {currencyList}
+                            </Input>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className=" incorporation_date col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="incorporation_date"
+                >
+                  <span>Incorporation Date </span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="incorporation_date"
+                  name="incorporation_date"
+                  control={control}
+                  requird
+                  render={({ field }) => (
+                    <Input
+                      control={control}
+                      name="incorporation_date"
+                      type="date"
+                      invalid={errors.incorporation_date && true}
+                      readOnly={isAccepted}
+                    />
+                  )}
+                />
+              </div>
+              {showParent && (
+                <div className=" incorporation_date col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="incorporation_date"
+                  >
+                    <span>Incorporation Date </span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="incorporation_date"
+                    name="parent_company_detail.incorporation_date"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        control={control}
+                        name="parent_company_detail.incorporation_date"
+                        type="date"
+                        invalid={errors.incorporation_date && true}
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                </div>
+              )}
+
+              <div className="VAT_Tax col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="tax_identification_number"
+                >
+                  <span>VAT / Tax Identification number ³ </span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <Controller
+                  id="tax_identification_number"
+                  name="tax_identification_number"
+                  control={control}
+                  rules={{
+                    maxLength: {
+                      value: 15,
+                      message: "value must be lesser than 15",
+                    },
+                  }}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      type="text"
+                      invalid={errors.tax_identification_number && true}
+                      readOnly={isAccepted}
+                    />
+                  )}
+                />
+                {errors?.tax_identification_number ? (
+                  <FormFeedback>
+                    {errors?.tax_identification_number?.message}
+                  </FormFeedback>
+                ) : null}
+              </div>
+              {showParent && (
+                <div className=" VAT_Tax  col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="tax_identification_number "
+                  >
+                    <span>VAT / Tax Identification number ³ </span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <Controller
+                    id="tax_identification_number "
+                    name="parent_company_detail.tax_identification_number"
+                    control={control}
+                    rules={{
+                      maxLength: {
+                        value: 15,
+                        message: "value must be lesser than 15",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="text"
+                        invalid={
+                          errors.parent_company_detail
+                            ?.tax_identification_number && true
+                        }
+                        readOnly={isAccepted}
+                      />
+                    )}
+                  />
+                  {errors?.parent_company_detail?.tax_identification_number ? (
+                    <FormFeedback>
+                      {
+                        errors?.parent_company_detail?.tax_identification_number
+                          ?.message
+                      }
+                    </FormFeedback>
+                  ) : null}
+                </div>
+              )}
+
+              <div className="listed_on_stock col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="stock_exchange"
+                >
+                  <span>Is company publicly listed on a stock exchange?</span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <br />
+                <Controller
+                  id="stock_exchange"
+                  name="stock_exchange"
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <div className="form-switch form-check-primary">
+                        <Input
+                          type="switch"
+                          name="icon-primary"
+                          onChange={onChange}
+                          checked={value}
+                        />
+                      </div>
+                    );
+                  }}
+                />
+              </div>
+              {showParent && (
+                <div className="listed_on_stock  col-lg-6 mt-1 ">
+                  <Label
+                    className="form-label d-flex justify-content-between"
+                    for="stock_exchange"
+                  >
+                    <span>Is company publicly listed on a stock exchange?</span>
+                    {showParent && (
+                      <span className="text-warning">
+                        (Details of Parent Company)
+                      </span>
+                    )}
+                  </Label>
+                  <br />
+                  <Controller
+                    id="parent_company_detail.stock_exchange"
+                    name="parent_company_detail.stock_exchange"
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <div className="form-switch form-check-primary">
+                          <Input
+                            type="switch"
+                            name="icon-primary"
+                            onChange={onChange}
+                            checked={value}
+                          />
+                        </div>
+                      );
+                    }}
+                  />
+                </div>
+              )}
+
+              <div className="company_registered_organization col-lg-6 mt-1 ">
+                <Label
+                  className="d-flex justify-content-between form-label"
+                  for="not_for_profit"
+                >
+                  <span>
+                    Is company a registered ‘not-for-profit’ organization?
+                  </span>
+                  {showParent && (
+                    <span className="text-warning">
+                      Details of Applying Company
+                    </span>
+                  )}
+                </Label>
+                <br />
+                <Controller
+                  id="not_for_profit"
+                  name="not_for_profit"
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <div className="form-switch form-check-primary">
+                        <Input
+                          type="switch"
+                          name="icon-primary"
+                          onChange={onChange}
+                          checked={value}
+                        />
+                      </div>
+                    );
+                  }}
+                />
+              </div>
+              {showParent && (
+                <div className="company_registered_organization col-lg-6 mt-1 ">
+                  <Label
+                    className="d-flex justify-content-between form-label"
+                    for="not_for_profit  "
+                  >
+                    <span>
+                      Is company a registered ‘not-for-profit’ organization?
+                    </span>
+                    {showParent && (
+                      <span className="text-warning">
+                        Details of Parent Company
+                      </span>
+                    )}
+                  </Label>
+                  <br />
+                  <Controller
+                    id="parent_company_detail.not_for_profit"
+                    name="parent_company_detail.not_for_profit"
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <div className="form-switch form-check-primary">
+                          <Input
+                            type="switch"
+                            name="icon-primary"
+                            onChange={onChange}
+                            checked={value}
+                          />
+                        </div>
+                      );
+                    }}
+                  />
+                </div>
+              )}
+
+              <div className="Billing col-lg-6 mt-1 ">
+                <Label className="form-label" for="billing_registered_address">
+                  Is billing address different from registered address?
+                </Label>
+                <br />
+                <Controller
+                  id="billing_registered_address"
+                  name="billing_registered_address"
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    if (value === true) {
+                      setBillAdresss(true);
+                    } else {
+                      setBillAdresss(false);
+                    }
+                    return (
+                      <div className="form-switch form-check-primary">
+                        <Input
+                          type="switch"
+                          name="icon-primary"
+                          onChange={onChange}
+                          checked={value}
+                        />
+                      </div>
+                    );
+                  }}
+                />
+              </div>
+              {billAdress && (
+                <div className="container-none pt-2 mt-2">
+                  <div
+                    className="row bg-light p-1 gy-1 gx-1"
+                    style={{
+                      boxShadow:
+                        " rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px",
+                    }}
+                  >
+                    <Label>
+                      <h4>BILLING ADDRESS</h4>
+                    </Label>
+                    <div className="col-sm-6">
+                      <Label
+                        className="form-label"
+                        for="billing_street_address"
+                      >
+                        Street address
+                      </Label>
+                      <Controller
+                        id="billing_street_address"
+                        name="billing_street_address"
+                        control={control}
+                        rules={{
+                          maxLength: {
+                            value: 50,
+                            message: "value must be lesser than 50",
+                          },
+                        }}
+                        render={({ field }) => {
+                          return (
+                            <Input
+                              {...field}
+                              type="text"
+                              invalid={errors.billing_street_address && true}
+                              readOnly={isAccepted}
+                            />
+                          );
+                        }}
+                      />
+                      {errors?.billing_street_address ? (
+                        <FormFeedback>
+                          {errors?.billing_street_address?.message}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="col-sm-6">
+                      <Label className="form-label" for="billing_house_no">
+                        Office / House number
+                      </Label>
+                      <Controller
+                        id="billing_house_no"
+                        name="billing_house_no"
+                        control={control}
+                        rules={{
+                          maxLength: {
+                            value: 5,
+                            message: "value must be lesser than 5",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            type="text"
+                            invalid={errors.billing_house_no && true}
+                            readOnly={isAccepted}
+                          />
+                        )}
+                      />
+
+                      {errors?.billing_house_no ? (
+                        <FormFeedback>
+                          {errors?.billing_house_no?.message}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="col-sm-6">
+                      <Label className="form-label" for="billing_post_code">
+                        Postcode / zip code
+                      </Label>
+                      <Controller
+                        id="billing_post_code"
+                        name="billing_post_code"
+                        control={control}
+                        rules={{
+                          maxLength: {
+                            value: 25,
+                            message: "value must be lesser than 25",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            type="text"
+                            invalid={errors.billing_post_code && true}
+                            readOnly={isAccepted}
+                          />
+                        )}
+                      />
+                      {errors?.billing_post_code ? (
+                        <FormFeedback>
+                          {errors?.billing_post_code?.message}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="col-sm-6">
+                      <Label className="form-label" for="billing_city">
+                        City
+                      </Label>
+                      <Controller
+                        id="billing_city"
+                        name="billing_city"
+                        control={control}
+                        rules={{
+                          maxLength: {
+                            value: 35,
+                            message: "value must be lesser than 35",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            type="text"
+                            invalid={errors.billing_city && true}
+                            readOnly={isAccepted}
+                          />
+                        )}
+                      />
+                      {errors?.billing_city ? (
+                        <FormFeedback>
+                          {errors?.billing_city?.message}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="col-sm-6">
+                      <Label className="form-label" for="billing_state">
+                        State
+                      </Label>
+                      <Controller
+                        id="billing_state"
+                        name="billing_state"
+                        control={control}
+                        rules={{
+                          maxLength: {
+                            value: 20,
+                            message: "value must be lesser than 20",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            type="text"
+                            invalid={errors.billing_state && true}
+                            readOnly={isAccepted}
+                          />
+                        )}
+                      />
+                      {errors?.registered_street_address ? (
+                        <FormFeedback>
+                          {errors?.registered_street_address?.message}
+                        </FormFeedback>
+                      ) : null}
+                    </div>
+                    <div className="col-lg-6 mt-1 ">
+                      <Label className="form-label" for="billing_country">
+                        Country
+                      </Label>
+                      <br />
+                      <Controller
+                        id="billing_country"
+                        name="billing_country"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            control={control}
+                            name="billing_country"
+                            type="select"
+                            disabled={isAccepted}
+                            invalid={errors.billing_country && true}
+                          >
+                            <option value="none" selected disabled hidden>
+                              Select Country
+                            </option>
+                            {country}
+                          </Input>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardBody>
+
+        <CardFooter className="d-flex justify-content-end mt-3">
+          <div>
+            <button
+              color="primary"
+              className={`btn-next ${loader ? "d-none" : "d-block"}`}
+              type="submit"
+              onClick={()=>clearErrors()}
+            >
+              Next
+            </button>
+            <button
+              color="primary"
+              className={`btn-next ${loader ? "d-block" : "d-none"}`}
+              disabled
+            >
+              <Spinner size={"md"} />
+            </button>
+          </div>
+        </CardFooter>
+      </Form>
+    </Card>
+  );
+};
+
+export default CompanyProfile;

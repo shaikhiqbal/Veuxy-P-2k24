@@ -1,0 +1,145 @@
+// ** React Imports
+import { Fragment, useEffect, useState } from "react";
+
+// ** Reactstrap Imports
+import { TabContent, TabPane, Nav, NavItem, NavLink, Card } from "reactstrap";
+
+import ApplicationStatus from "../../../components/underwriter-dashboard/ApplicationStatus";
+
+import UILoader from "../../../../@core/components/ui-loader";
+//** Api
+import useJwt from "@src/dashboard/jwt/useJwt";
+const ApplicationTab = () => {
+  // ** States
+  const userInfo = localStorage.getItem("userData");
+  const [active, setActive] = useState("1");
+  const [loader, setLoader] = useState(true);
+  const [applicationDatas, setApplicationDatas] = useState({
+    pending: [],
+    approved: [],
+    rejected: [],
+  });
+  const [role, setRole] = useState(null);
+  // ** toggling
+  const toggle = (tab) => {
+    if (active !== tab) {
+      setActive(tab);
+    }
+  };
+
+  // ** fetching list data
+  useEffect(() => {
+    // const dataType = { pending: "P&status=MQ", approved: "A", rejected: "R" };
+    const dataType = {
+      pending: "P,MQ",
+      approved: "A",
+      rejected: "R",
+      uw: "AUW",
+      incomplited: "INC",
+    };
+
+    const fetchData = async (list) => {
+      const store = {};
+      for (const key in dataType) {
+        try {
+          const response = await useJwt.application_view(dataType[key]);
+          // setApplicationDatas((previouse) => ({
+          //   ...previouse,
+          //   [key]: response?.data,
+          // }));
+          // if(key===)
+          store[key] = response?.data;
+        } catch (error) {
+          console.log(error?.response?.message);
+        }
+      }
+      if (store.uw.length) {
+        console.log(store.pending.length);
+        store.pending = [...store.uw, ...store.pending];
+        console.log(store.pending.length);
+        delete store.uw;
+      }
+      setApplicationDatas({ ...store });
+    };
+    const userDetail = JSON.parse(userInfo);
+    const { role } = userDetail;
+    setRole(role);
+    fetchData();
+    setLoader(false);
+  }, []);
+  console.log(applicationDatas);
+  // if (loader) return <UILoader />;
+  return (
+    <Card>
+      <Nav tabs fill>
+        <NavItem>
+          <NavLink
+            active={active === "1"}
+            onClick={() => {
+              toggle("1");
+            }}
+          >
+            Application
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === "2"}
+            onClick={() => {
+              toggle("2");
+            }}
+          >
+            Approved
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === "3"}
+            onClick={() => {
+              toggle("3");
+            }}
+          >
+            Incomplite
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === "4"}
+            onClick={() => {
+              toggle("4");
+            }}
+          >
+            Rejected
+          </NavLink>
+        </NavItem>
+      </Nav>
+      <TabContent className="py-50" activeTab={active}>
+        <TabPane tabId="1">
+          <ApplicationStatus
+            list={[...applicationDatas?.pending]}
+            type={"pending"}
+          />
+        </TabPane>
+        <TabPane tabId="2">
+          <ApplicationStatus
+            list={applicationDatas?.approved}
+            type={"approved"}
+          />
+        </TabPane>
+        <TabPane tabId="3">
+          <ApplicationStatus
+            list={applicationDatas?.incomplited}
+            type={"rejected"}
+          />
+        </TabPane>
+        <TabPane tabId="4">
+          <ApplicationStatus
+            list={applicationDatas?.rejected}
+            type={"rejected"}
+          />
+        </TabPane>
+      </TabContent>
+    </Card>
+  );
+};
+export default ApplicationTab;

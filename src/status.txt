@@ -1,0 +1,14 @@
+[
+('INC', 'Incomplete'),
+('SUB', 'Submitted'),
+('MAQ', 'Manual Query'),
+('REJ', 'Rejected'),
+('STB', 'Send To Bank'),
+('RAR', 'Rate Received'),
+('AUW', 'Approve By Underwriter'),
+('ABA', 'Approve By Admin'),
+('AAI', 'Approve By Admin By Pass Iso'),
+('ABI', 'Approve By Iso'),
+('ABM', 'Approve By Merchant')
+]
+

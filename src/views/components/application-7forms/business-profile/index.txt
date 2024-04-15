@@ -1,0 +1,336 @@
+ <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor="">Did you accept credit cards before?</Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor="">Current/Previous Acquirer</Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor="">Reason for Leaving Acquirer</Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor="">Monthly Sales Volume (Est.)</Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor="">Avg. Transaction Value</Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor="">Highest Transaction Value</Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor="">Currency</Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12">
+        <h4>
+          Transaction origin: Cardholders' geographical distribution. (100%)
+        </h4>
+        <Col sm="6" md="4" lg="4">
+          <Label htmlFor="">Domestic</Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup className="input-group-merge">
+                <Input
+                  id=""
+                  type="number"
+                  invalid={errors.setup_charges && true}
+                  {...field}
+                />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="6" md="4" lg="4">
+          <Label htmlFor="">Europe</Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup className="input-group-merge">
+                <Input
+                  id=""
+                  type="number"
+                  invalid={errors.setup_charges && true}
+                  {...field}
+                />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="6" md="4" lg="4">
+          <Label htmlFor="">USA</Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup className="input-group-merge">
+                <Input
+                  id=""
+                  type="number"
+                  invalid={errors.setup_charges && true}
+                  {...field}
+                />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="6" md="4" lg="4">
+          <Label htmlFor="">Asia</Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup className="input-group-merge">
+                <Input
+                  id=""
+                  type="number"
+                  invalid={errors.setup_charges && true}
+                  {...field}
+                />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="6" md="4" lg="4">
+          <Label htmlFor="">Rest of world</Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup className="input-group-merge">
+                <Input
+                  id=""
+                  type="number"
+                  invalid={errors.setup_charges && true}
+                  {...field}
+                />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <h4>Card types applying for</h4>
+        {/* <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        /> */}
+        <Alert color="danger">
+          <p>Dynamice Form</p>
+        </Alert>
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <h4>Method of acceptance</h4>
+        {/* <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        /> */}
+        <Col sm="12" md="6" lg="6" className="mb-1">
+          <Label htmlFor=""></Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup>
+                <Input id="" type="number" invalid={""} />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="12" md="6" lg="6" className="mb-1">
+          <Label htmlFor=""></Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup>
+                <Input id="" type="number" invalid={""} />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="12" md="6" lg="6" className="mb-1">
+          <Label htmlFor=""></Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup>
+                <Input id="" type="number" invalid={""} />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="12" md="6" lg="6" className="mb-1">
+          <Label htmlFor=""></Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup>
+                <Input id="" type="number" invalid={""} />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="12" md="6" lg="6" className="mb-1">
+          <Label htmlFor=""></Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup>
+                <Input id="" type="number" invalid={""} />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+        <Col sm="12" md="6" lg="6" className="mb-1">
+          <Label htmlFor=""></Label>
+          <Controller
+            control={control}
+            name=""
+            render={({ field }) => (
+              <InputGroup>
+                <Input id="" type="number" invalid={""} />
+                <InputGroupText>%</InputGroupText>
+              </InputGroup>
+            )}
+          />
+        </Col>
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>
+      <Col sm="12" md="6" lg="6" className="mb-1">
+        <Label htmlFor=""></Label>
+        <Controller
+          control={control}
+          name=""
+          render={({ feild }) => <Input id="" type="text" />}
+        />
+      </Col>

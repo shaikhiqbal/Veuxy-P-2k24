@@ -1,0 +1,86 @@
+.application-container{
+height:80vh;
+padding: 1rem;
+overflow: auto;
+}
+
+
+/*Dynamice Form */
+
+.dynamic-form-template{
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.dynamic-form-header{
+box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+display: flex;
+align-items: baseline;
+justify-content: space-between;
+transition: all 0.5 ease-in-out;
+align-items: center;
+height: 50px;
+border-radius: 8px 8px 0px 0px;
+}
+.card-form-title>span{
+    font-size: medium;
+    font-weight: 500;
+}
+.trash{
+    padding: 5px 8px;
+    border-radius: 5px;
+    color: #EA5355;
+    font-weight: bolder;
+    background-color: #FFFFFF;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    transition: all 0.5s ease-in-out;
+    border: none;
+}
+.trash:hover{
+    transform: scale(1.2);
+    background-color: #EA5355;
+    color: #FFFFFF;
+}
+.add-more-btn>button{
+    background-color: #FFFFFF;
+    border: 0.5px solid #0EC0EE ;
+    color: #0EC0EE;
+    padding: 10px 15px;
+    font-size: larger;
+    font-weight: 500;
+    border-radius: 5px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+    transition: all 0.4s ease;
+}
+.add-more-btn>button:hover{
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    border: none;
+    background-color: #0EC0EE;
+    color: #FFFFFF;
+}
+/* 53BDC0 */
+.btn-next{
+    position: relative;
+    padding: 5px 20px;
+    font-size: small;
+    font-weight: 500;
+    border: none;
+    border-radius: 5px;
+    position: relative;
+    width: 95px;
+    height:40px ;
+    background-color: #53BDC0;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    color: white;
+    transition: all .3s;
+}
+.btn-next:hover{
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px; 
+}
+.inputError{
+    border: 1px solid #dc3545;
+}
+.inputError:focus{
+    border: 1px solid #dc3545;
+}

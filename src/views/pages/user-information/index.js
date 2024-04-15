@@ -1,0 +1,7 @@
+export {default as ComopanyProfile} from './CompanyProfile'
+export {default as OwnerShipProfile} from './ CompanyOwnershipProfileDirector'
+export {default as Businessprofile} from './BusinessProfile'
+export {default as SecurityMesuares} from './SecurityMeasures' 
+export {default as SettlementBank} from './SettlementBankDetails'
+export {default as MerchantContact} from './AllContact'
+export {default as DocumentUpload} from './FileUpload'

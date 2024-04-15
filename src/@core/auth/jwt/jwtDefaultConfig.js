@@ -1,0 +1,45 @@
+// ** Auth Endpoints
+export default {
+  // loginEndpoint: "/api/token/",
+  loginEndpoint: "/api/allul/",
+  // verifyLoginOtpEndpoint: "/api/login/",
+  verifyLoginOtpEndpoint: "/api/allulwotp/",
+  // ** old one 
+  // registerEndpoint: "/api/signup",
+  registerEndpoint:"/api/msu",
+  refreshEndpoint: "/api/token/refresh/",
+  logoutEndpoint: "/jwt/logout",
+  // verifyEmail: "api/email_verified",
+  verifyEmail: "api/allve",
+  // verifyPhone: "api/phone_verified",
+  verifyPhone: "api/allvp",
+  // resendOTPOnMassage: "/api/resendOTPOnmessage",
+  resendOTPOnMassage: "/api/mrotpom",
+  // resendOTPOnEmail: "/api/resendOTPOnEmail",
+  resendOTPOnEmail: "/api/mrotpoe",
+  // resendOTPOnCall: "/api/resendOTPOncall",
+  resendOTPOnCall: "/api/mrotpoc/",
+  // changeEmail: "/api/changeemail",
+  changeEmail: "/api/mce/",
+  // changeMobileNo: "/api/changemobileno",
+  changeMobileNo: "/api/mcmn",
+  resetPassword: "/api/all_r_p",
+  changePassword: "/api/activate",
+  signinPhoneVerified: "api/signin_phone_verified",
+  //** =>wed/28/dec old end resetPasswordOtpRese:"/api/resendOTPForreset",
+  // resetPasswordOtpRese:'/api/sendotp/',
+  resetPasswordOtpRese:'/api/allsonu/',
+  resendOTPForreset:"/api/resendOTPForreset/",
+  verifynumberforactivation:"/api/verifyotp/",
+  // newpassword:"/api/newpassword/",
+  newpassword:"/api/allsnp/",
+  // newpassword:"/api/setnewpassword/",
+  newpasswordresendOtp:"/api/sendotp/",
+  // ** This will be prefixed in authorization header with token
+  // ? e.g. Authorization: Bearer <token>
+  tokenType: "Bearer",
+
+  // ** Value of this property will be used as key to store JWT token in storage
+  storageTokenKeyName: "accessToken",
+  storageRefreshTokenKeyName: "refreshToken",
+};

@@ -1,0 +1,19 @@
+<Input
+ref={ref}
+invalid={invalid}
+onCopy={handleCopy}
+onPaste={handlePaste}
+type={inputVisibility === false ? "password" : "text"}
+placeholder={placeholder ? placeholder : "············"}
+className={classnames({
+  [inputClassName]: inputClassName,
+})}
+/*eslint-disable */
+{...(label && htmlFor
+  ? {
+      id: htmlFor,
+    }
+  : {})}
+{...rest}
+/*eslint-enable */
+/>

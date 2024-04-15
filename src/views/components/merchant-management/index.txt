@@ -1,0 +1,112 @@
+{userInfo && (
+        <Row className="d-flex justify-content-center">
+          <Col sm="12" md="6" lg="6">
+            {" "}
+            <Card className="card-app-design">
+              <Row className="m-1">
+                <Col
+                  sm={12}
+                  className="d-flex justify-content-between border-bottom"
+                >
+                  <div className="d-flex justify-content-between mb-1">
+                    <Badge color="light-primary">05 Sep, 23</Badge>
+                  </div>
+                  <div>
+                    <Badge
+                      className="me-1"
+                      color={applicationStatus[userInfo[0]["status"]]["color"]}
+                    >
+                      Application
+                      {applicationStatus[userInfo[0]["status"]]["name"]}
+                    </Badge>
+                  </div>
+                </Col>
+              </Row>
+              <CardBody>
+                <Row>
+                  <Col sm={12} md={12} lg={12}>
+                    <div className="design-group mb-1 pt-50">
+                      <h6 className="section-label">Name</h6>
+                      <Badge className="me-1" color="light-info">
+                        {userInfo[0]?.user?.full_name}
+                      </Badge>
+                    </div>
+                    <div className="design-group mb-1 pt-50">
+                      <h6 className="section-label">Email</h6>
+                      <Badge className="me-1" color="light-info">
+                        {userInfo[0]?.user?.email}
+                      </Badge>
+                    </div>
+                    <div className="design-group mb-1 pt-50">
+                      <h6 className="section-label">Mobile</h6>
+                      <Badge className="me-1" color="light-info">
+                        {userInfo[0]?.user?.mobile}
+                      </Badge>
+                    </div>
+                    <Row className="design-group mb-2 pt-50">
+                      <h6 className="section-label">Note:</h6>
+                      <Col
+                        sm="12"
+                        md="12"
+                        lg="12"
+                        className="font-small-2 mb-1 my-1 "
+                      >
+                        {content(userInfo[0]?.status)}
+                      </Col>
+                    </Row>
+                    <>
+                      <h6 className="section-label">Mangament</h6>
+                      <div className="design-group pt-25 d-flex">
+                        {designPlanningArr.map((obj, index) => {
+                          return (
+                            <div className="mx-2" key={index}>
+                              <h4 className="section-label"> {obj?.title}</h4>
+                              {/* {console.log(
+                          userInfo[0]?.status == "AA" || "AUW" ? true : false
+                        )} */}
+                              <Button.Ripple
+                                onClick={() =>
+                                  navigate(obj?.navigate, {
+                                    state: {
+                                      application_id: userInfo[0]?.uid,
+                                      user_type: "merchant",
+                                    },
+                                  })
+                                }
+                                className="btn-sm"
+                                outline
+                                color="primary"
+                              >
+                                {obj.icon}
+                                <span className="align-middle ms-25">
+                                  {obj.btn}
+                                </span>
+                              </Button.Ripple>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  </Col>
+                </Row>
+                {/* {console.log(userInfo&&userInfo.status)} */}
+                {userInfo && userInfo[0].status == "ABA" && (
+                  <div className="d-grid">
+                    <Button
+                      color="primary"
+                      onClick={() =>
+                        navigate("/merchant-rates-view", {
+                          state: { application_id: userInfo[0].uid },
+                        })
+                      }
+                      // disabled={userInfo[0]?.status == "AA" ? false : true}
+                    >
+                      See Rates
+                    </Button>
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      )}
